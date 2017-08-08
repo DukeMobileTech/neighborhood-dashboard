@@ -52,8 +52,29 @@ def request_transit_score(lat, lon, revgeo, api_key):
     country = revgeo['address']['country_code']
     if not 'us' in country:
         return None
-    city = revgeo['address']['city']
-    state = revgeo['address']['state_district']
+    print revgeo
+    city = ''
+    state = ''
+    if 'city' in revgeo['address']:
+        city = revgeo['address']['city']
+    elif 'town' in revgeo['address']:
+        city = revgeo['address']['town']
+    elif 'residential' in revgeo['address']:
+        city = revgeo['address']['residential']
+    elif 'hamlet' in revgeo['address']:
+        city = revgeo['address']['hamlet']
+    elif 'suburb' in revgeo['address']:
+        city = revgeo['address']['suburb']
+    elif 'village' in revgeo['address']:
+        city = revgeo['address']['village']
+    elif 'road' in revgeo['address']:
+        city = revgeo['address']['road']
+    elif 'county' in revgeo['address']:
+        city = revgeo['address']['county']
+
+    if 'state' in revgeo['address']:
+        state = revgeo['address']['state']
+
     uri = TRANSIT_BASE_URI
     uri += "?" + LAT_PART + str(lat)
     uri += "&" + LON_PART + str(lon)
@@ -83,4 +104,3 @@ def writeWalkabilityDictionaryToCsv(data, csvfolder, filename):
 
 if __name__ == "__main__":
     print 'Not like this'
-

@@ -129,19 +129,21 @@ class NeighborhoodDashboard:
         data['latitude'] = lat
         data['longitude'] = lon
         revgeo = api_geocode.reverse_geocode(lat, lon)
-        data['address'] = revgeo.address
+        if not revgeo is None:
+            data['address'] = revgeo.address
         if self.perform_walkability:
             walkability_score = api_walkability.request_walkability(lat, lon, self.walkability_key)
             if not walkability_score is None:
                 data['ws_walkscore'] = walkability_score['walkscore']
                 data['ws_description'] = walkability_score['description']
                 data['ws_link'] = walkability_score['ws_link']
-            transit_score = api_walkability.request_transit_score(lat, lon, revgeo.raw, self.walkability_key)
-            if not transit_score is None:
-                data['ts_transitscore'] = walkability_score['transit_score']
-                data['ts_description'] = walkability_score['description']
-                data['ts_summary'] = walkability_score['summary']
-                data['ts_link'] = walkability_score['ws_link']
+            if not revgeo is None:
+                transit_score = api_walkability.request_transit_score(lat, lon, revgeo.raw, self.walkability_key)
+                if not transit_score is None:
+                    data['ts_transitscore'] = walkability_score['transit_score']
+                    data['ts_description'] = walkability_score['description']
+                    data['ts_summary'] = walkability_score['summary']
+                    data['ts_link'] = walkability_score['ws_link']
         return data
 
     def run_preprocessing(self):
@@ -208,17 +210,16 @@ class NeighborhoodDashboard:
             policefile = os.path.join(policefolder, 'police-data-' + str(family) + '.js')
 
             police_data = {}
+            # TODO: Uncomment for UK locations / Comment out for US locations
             if os.path.isfile(policefile):
                 print 'Skipping police data for %s' % family
             else:
-                police_data = policedata.requestFamilyPoliceData(family, lat, lon, self.year_setting,
-                                                                 list(random_locations), road_data['roads']['points'])
+                police_data = policedata.requestFamilyPoliceData(family, lat, lon, self.year_setting, list(random_locations),
+                road_data['roads']['points'])
                 flat_police_crime_data = policedata.flattenPoliceDictionaryCrimes(family, police_data)
-                flat_police_stop_and_search_data = policedata.flattenPoliceDictionaryStopAndSearches(family,
-                                                                                                     police_data)
+                flat_police_stop_and_search_data = policedata.flattenPoliceDictionaryStopAndSearches(family, police_data)
                 policedata.writePoliceDictionaryToCsv(flat_police_crime_data, flat_police_stop_and_search_data,
-                                                      self.csvfolder, 'police_crime_data.csv',
-                                                      'police_stop_and_search_data.csv')
+                self.csvfolder, 'police_crime_data.csv', 'police_stop_and_search_data.csv')
 
             roadfolder = os.path.join(self.data_output_folder, ROAD_PATH)
             roadfile = os.path.join(roadfolder, 'road-data-' + str(family) + '.js')

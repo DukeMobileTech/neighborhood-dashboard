@@ -4,6 +4,7 @@ import urllib2
 import random
 import math
 import csv
+import time
 
 #from common_private import *
 
@@ -266,6 +267,10 @@ def downloadOsm(filename, lat, lon, osm_output_folder):
             print 'The server couldn\'t fulfill the request. Error code: ', e.code
         except urllib2.URLError as e:
             print 'We failed to reach a server. Reason: ', e.reason
+        except socket.error as e:
+            print 'Connection reset by peer'
+            time.sleep(100)
+            # downloadOsm(filename, lat, lon, osm_output_folder)
         else:
             f = open(filepath, 'wb')
             block_sz = 8192

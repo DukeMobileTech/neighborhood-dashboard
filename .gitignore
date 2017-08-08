@@ -1,0 +1,4 @@
+input/*
+output/html/*
+*.pyc
+config.cfg

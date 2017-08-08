@@ -2,6 +2,7 @@
 #import getopt
 #import os
 import urllib
+import time
 
 from sklearn.externals import joblib
 import cv2
@@ -45,9 +46,19 @@ def getImagesFromGSV(family, family_road_data, streetview_output_folder, GSV_KEY
             if not os.path.isfile(imgname):
                 gsv_base_url = "http://maps.googleapis.com/maps/api/streetview?size=640x360&location="+str(lat)+","+str(lon)
                 gsv_url = gsv_base_url + "&fov="+str(fov) + "&heading="+str(h) + "&pitch=" + str(pitch) +"&key=" + GSV_KEY
-                urllib.urlretrieve(gsv_url, imgname)
-                print "Downloaded %s" % imgname
-                heading_data.append(fname)
+                try:
+                    urllib.urlretrieve(gsv_url, imgname)
+                    print "Downloaded %s" % imgname
+                    heading_data.append(fname)
+                except urllib.error.HTTPError as e:
+                    print 'The server couldn\'t fulfill the request. Error code: ', e.code
+                except urllib.error.URLError as e:
+                    print 'We failed to reach a server. Reason: ', e.reason
+                except socket.error as e:
+                    print 'Connection reset by peer'
+                    time.sleep(100)
+                except:
+                    print 'Uknown Exception'
             else:
                 print "Image already exist %s" % imgname
             h_count += 1
