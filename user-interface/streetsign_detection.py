@@ -15,7 +15,7 @@ from common import *
 clf = joblib.load(os.path.join('detecting',os.path.join('clf','streetsigns-hog-svm.pkl')))
 
 def checkDetectionDone(family, streetview_output_folder):
-    family_dir = os.path.join(streetview_output_folder, family)
+    family_dir = os.path.join(streetview_output_folder, str(family))
     if not os.path.exists(streetview_output_folder) or not os.path.exists(family_dir):
         return False
     return True
@@ -29,7 +29,7 @@ def getFeatures(imgunsized):
 def getImagesFromGSV(family, family_road_data, streetview_output_folder, GSV_KEY):
     if not os.path.exists(streetview_output_folder):
         os.makedirs(streetview_output_folder)
-    family_dir = os.path.join(streetview_output_folder, family)
+    family_dir = os.path.join(streetview_output_folder, str(family))
     if not os.path.exists(family_dir):
         os.makedirs(family_dir)
     fov=120
@@ -50,15 +50,15 @@ def getImagesFromGSV(family, family_road_data, streetview_output_folder, GSV_KEY
                     urllib.urlretrieve(gsv_url, imgname)
                     print "Downloaded %s" % imgname
                     heading_data.append(fname)
-                except urllib.error.HTTPError as e:
+                except urllib.HTTPError as e:
                     print 'The server couldn\'t fulfill the request. Error code: ', e.code
-                except urllib.error.URLError as e:
+                except urllib.URLError as e:
                     print 'We failed to reach a server. Reason: ', e.reason
-                except socket.error as e:
-                    print 'Connection reset by peer'
-                    time.sleep(100)
+                except urllib.ContentTooShortError as e:
+                    print 'Content too short'
                 except:
                     print 'Uknown Exception'
+                    time.sleep(100)
             else:
                 print "Image already exist %s" % imgname
             h_count += 1
@@ -67,13 +67,13 @@ def getImagesFromGSV(family, family_road_data, streetview_output_folder, GSV_KEY
     return point_data
 
 def detectStreetsigns(family, point_data, streetview_output_folder):
-    family_dir = os.path.join(streetview_output_folder, family)
+    family_dir = os.path.join(streetview_output_folder, str(family))
     result = {}
     point_count = 0
     for point, heading_data in point_data:
         result[point_count] = {'point' : point, 'images': [], 'detections': [], 'features': []}
         for fname in heading_data:
-            result[point_count]['images'].append(os.path.join(family, fname))
+            result[point_count]['images'].append(os.path.join(str(family), fname))
             img_filename = os.path.join(family_dir, fname)
             img_data = cv2.imread(img_filename)
             img_resize = cv2.cvtColor(img_data, cv2.COLOR_BGR2GRAY)
@@ -136,7 +136,7 @@ def detectStreetsigns(family, point_data, streetview_output_folder):
                     crop_img = img_data[r[1]:r[3], r[0]:r[2]]
                     img_new_filename = fname.split('.')[0]+'_'+str(c)+'_ss.jpg'
                     cv2.imwrite(os.path.join(family_dir, img_new_filename),crop_img)
-                    result[point_count]['features'].append(os.path.join(family, img_new_filename))
+                    result[point_count]['features'].append(os.path.join(str(family), img_new_filename))
                     cv2.rectangle(img_data, (r[0],r[1]),(r[2],r[3]),(0,0,255))
                     #print r
                     c+=1
@@ -145,7 +145,7 @@ def detectStreetsigns(family, point_data, streetview_output_folder):
                 print "No Streetsign in %s" % img_filename
             detected_file_name = fname.split('.')[0]+'_detection.png'
             cv2.imwrite(os.path.join(family_dir, detected_file_name),img_data)
-            result[point_count]['detections'].append(os.path.join(family, detected_file_name))
+            result[point_count]['detections'].append(os.path.join(str(family), detected_file_name))
         point_count += 1
     return result
 

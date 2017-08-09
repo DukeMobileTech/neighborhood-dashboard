@@ -15,12 +15,19 @@ def requestPoliceURI(baseuri, lat, lon, year, month):
         uri += '0'
     uri += str(month)
     context = ssl._create_unverified_context()
-    r = urllib2.urlopen(uri, context=context)
-    if r is None:
-        print 'No results for uri %s' % (uri)
-        return {}
-    return json.load(r)
-
+    try:
+        r = urllib2.urlopen(uri, context=context)
+        if r is None:
+            print 'No results for uri %s' % (uri)
+            return {}
+        return json.load(r)
+    except urllib2.HTTPError as e:
+        print 'The server couldn\'t fulfill the request. Error code: ', e.code
+    except urllib2.URLError as e:
+        print 'We failed to reach a server. Reason: ', e.reason
+    except:
+        print 'Uknown Exception'
+        time.sleep(100)
 
 def requestFilteredData(base_uri, lat, lon, year, polygon, family_road_points):
     result = {}
@@ -30,18 +37,20 @@ def requestFilteredData(base_uri, lat, lon, year, polygon, family_road_points):
         if polygon is None:
             filtered_crimes = crimes
         else:
-            for crime in crimes:
-                try:
-                    if 'location' in crime and 'latitude' in crime['location'] and 'longitude' in crime['location']:
-                        crimeLocation = crime['location']
-                        crimeLat = float(crimeLocation['latitude'])
-                        crimeLon = float(crimeLocation['longitude'])
-                        if point_inside_polygon(crimeLat, crimeLon, polygon):
-                            crime['on_family_road'] = point_on_segments(crimeLat, crimeLon, family_road_points)
-                            filtered_crimes.append(crime)
-                except ValueError:
-                    continue
-        print '(%s:%i/%i);' % (MONTHS[i], len(filtered_crimes), len(crimes)),
+            if crimes is not None:
+                for crime in crimes:
+                    try:
+                        if 'location' in crime and 'latitude' in crime['location'] and 'longitude' in crime['location']:
+                            crimeLocation = crime['location']
+                            crimeLat = float(crimeLocation['latitude'])
+                            crimeLon = float(crimeLocation['longitude'])
+                            if point_inside_polygon(crimeLat, crimeLon, polygon):
+                                crime['on_family_road'] = point_on_segments(crimeLat, crimeLon, family_road_points)
+                                filtered_crimes.append(crime)
+                    except ValueError:
+                        continue
+        if crimes is not None:
+            print '(%s:%i/%i);' % (MONTHS[i], len(filtered_crimes), len(crimes)),
         result[i] = filtered_crimes
     return result
 
