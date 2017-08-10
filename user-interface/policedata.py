@@ -128,15 +128,23 @@ def requestCrimeCategories(year):
             uri += '0'
         uri += str(i+1)
         context = ssl._create_unverified_context()
-        r = urllib2.urlopen(uri, context=context)
-        if r is None:
-            print 'No results for uri %s' % (uri)
-            continue
-        categories = json.load(r)
-        for category in categories:
-            curl = category['url']
-            if not curl in result:
-                result[curl] = category['name']
+        try:
+            r = urllib2.urlopen(uri, context=context)
+            if r is None:
+                print 'No results for uri %s' % (uri)
+                continue
+            categories = json.load(r)
+            for category in categories:
+                curl = category['url']
+                if not curl in result:
+                    result[curl] = category['name']
+        except urllib2.HTTPError as e:
+            print 'The server couldn\'t fulfill the request. Error code: ', e.code
+        except urllib2.URLError as e:
+            print 'We failed to reach a server. Reason: ', e.reason
+        except:
+            print 'Uknown Exception'
+            time.sleep(100)
     return result
 
 def flattenPoliceDictionaryStopAndSearches(family, police_data):

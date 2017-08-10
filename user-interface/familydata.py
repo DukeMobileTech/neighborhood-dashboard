@@ -84,18 +84,11 @@ def readCoordinates(coordinatesfile):
         j = 0
         for row in familyreader:
             print row
-            id = 0
             if not family_data_col == -1:
-                id = row[family_data_col]
+                pass
             else:
-                id = j
+                family_id = j
                 j += 1
-            try:
-                int(id)
-                point = {}
-                point["latitude"] = row[latitude_col]
-                point["longitude"] = row[longitude_col]
-                location_data[id] = point
-            except ValueError:
-                print 'Not an integer %s' % (id)
+                point = {"latitude": row[latitude_col], "longitude": row[longitude_col]}
+                location_data[family_id] = point
     return location_data
