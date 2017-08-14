@@ -267,8 +267,8 @@ def downloadOsm(filename, lat, lon, osm_output_folder):
             print 'The server couldn\'t fulfill the request. Error code: ', e.code
         except urllib2.URLError as e:
             print 'We failed to reach a server. Reason: ', e.reason
-        except socket.error as e:
-            print 'Connection reset by peer'
+        except:
+            print 'Unknown exception'
             time.sleep(100)
             # downloadOsm(filename, lat, lon, osm_output_folder)
         else:
