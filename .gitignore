@@ -1,5 +1,6 @@
 input/*
-output/html/*
+output/*
+!output/*.zip
 *.pyc
 user-interface/config.cfg
 .idea
