@@ -50,15 +50,10 @@ def getImagesFromGSV(family, family_road_data, streetview_output_folder, GSV_KEY
                     urllib.urlretrieve(gsv_url, imgname)
                     print "Downloaded %s" % imgname
                     heading_data.append(fname)
-                except urllib.HTTPError as e:
-                    print 'The server couldn\'t fulfill the request. Error code: ', e.code
-                except urllib.URLError as e:
-                    print 'We failed to reach a server. Reason: ', e.reason
-                except urllib.ContentTooShortError as e:
-                    print 'Content too short'
                 except:
-                    print 'Uknown Exception'
-                    time.sleep(100)
+                    print 'Exception thrown'
+                    time.sleep(60)
+                    pass
             else:
                 print "Image already exist %s" % imgname
             h_count += 1
