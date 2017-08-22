@@ -13,7 +13,7 @@ def readSSOClean(sso_clean_file):
         header_row = next(sso_clean_reader)
         i = 0
         for col in header_row:
-            if col == "familyid":
+            if col == "family_id":
                 family_data_col = i
             else:
                 header_index[i] = col
@@ -70,7 +70,7 @@ def readCoordinates(coordinatesfile):
         header_row = next(familyreader)
         i = 0
         for col in header_row:
-            if col == "familyid":
+            if col == "family_id":
                 family_data_col = i
             elif "longitude" in col:
                 longitude_col = i
@@ -84,11 +84,18 @@ def readCoordinates(coordinatesfile):
         j = 0
         for row in familyreader:
             print row
+            id = 0
             if not family_data_col == -1:
-                pass
+                id = row[family_data_col]
             else:
-                family_id = j
+                id = j
                 j += 1
-                point = {"latitude": row[latitude_col], "longitude": row[longitude_col]}
-                location_data[family_id] = point
+            try:
+                int(id)
+                point = {}
+                point["latitude"] = row[latitude_col]
+                point["longitude"] = row[longitude_col]
+                location_data[id] = point
+            except ValueError:
+                print 'Not an integer %s' % (id)
     return location_data
