@@ -1,22 +1,11 @@
 # Running the Neighborhood Dashboard from source code in UNIX (Mac OS X, Linux)
 # Download and Install Anaconda Python 2.7
-- The Neighborhood Dashboard (NBD) application runs on Anaconda Python 2.7. It will not run on the default Python bundled with your OS or on Python 3.
-- Head to Continuum (https://www.continuum.io/downloads) and download and install Anaconda Python 2.7 for your platform (macOS or Linux). Follow the installation instructions offered by the installer.
-- To verify the installation succeeded, open a terminal window and run the command ```python```. The output should be as follows:
-![Anaconda 2.7](images/anaconda-2-7.png?raw=true)
-If the output is not Python 2.7.x | Anaconda x.x.x, then the installation did not succeed and needs to be fixed first before continuing with the next steps.
-# Install additional packages
-Additional Python packages are required to run the NBD application. These packages can be installed on a UNIX machine using pip, the Python package manager. pip comes bundled with Anaconda and you can confirm this by running the command ```which pip``` on your terminal, which should output ```/anaconda/bin/pip```. 
-- The additional packages required are NumPy, GeoPy, and OpenCV and can be installed by running the following commands on the terminal: ```pip install numpy```, ```pip install geopy```, and ```pip install opencv-python```
-![Additional Packages](images/additional-packages.png?raw=true)
-- Confirm each package is installed by running the command ```pip show package-name``` where package-name is numpy etc. The output is as below:
-![NumPy](images/numpy.png?raw=true)
+- The Neighborhood Dashboard (NBD) application runs on Anaconda Python 2.7. It will not run on the default Python bundled with your OS or on Python 3. It also requires a couple of other Python packages to run that are not bundled together with Anaconda Python 2.7.
+- To install Anaconda Python 2.7, follow these [instructions](installing-python-and-required-packages.md).
 # Obtaining API Keys
-The NBD uses publicly accessible APIs to collect neighborhood data. Some of these APIs require keys to access them though.
-- **Google API Key** - For the NBD to download StreetView images, you need to obtain an API key from Google by following the instructions contained in this site (https://developers.google.com/maps/documentation/javascript/get-api-key).
-- **Walkability API Key** - For the NBD to obtain the Walk Scores for a given neighborhood, you need an API key from Walk Score (https://www.walkscore.com/professional/walk-score-apis.php). To automatically get the key, ensure that your email address/domain name are the same i.e. if your email is awesome_address@good_school.edu, then the domain name should be good_school.edu. If they differ, you will need to contact Walk Score.  
+- Read the [utilized APIs](APIs.md) documentation and obtain the 2 necessary API keys.  
 # Download the NBD source code from Github
-- Download/Clone the NBD source code from Github by running the command ```git clone git@github.com:DukeMobileTech/neighborhood-dashboard.git``` in your terminal. You can install git (or the latest version) by following these instructions (https://www.atlassian.com/git/tutorials/install-git)
+- Clone the NBD source code from Github by running the command ```git clone git@github.com:DukeMobileTech/neighborhood-dashboard.git``` in your terminal. You can install git (or the latest version) by following these instructions (https://www.atlassian.com/git/tutorials/install-git). Another way of downloading the source code is to click on the **Clone or download** link on this [Github repository](https://github.com/DukeMobileTech/neighborhood-dashboard).
 - Navigate into the neighborhood-dashboard directory which contains several folders in it. Unzip the ```input.zip``` file (It contains 3 test locations). The input folder is where your input files (location.csv, sso.csv, and urbanicity.csv) go. You can swap out the locations.csv file with your own locations file. The locations file contains comma separated values in the format *family_id, latitude, longitude*.
 # config.cfg
 - This contains the configuration values needed to run the NBD. An example of this file (named config_example) is found in the folder user-interface. The file should look as below:
