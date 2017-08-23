@@ -1,14 +1,14 @@
 # Running the Neighborhood Dashboard from source code in UNIX (Mac OS X, Linux)
 # Download and Install Anaconda Python 2.7
-- The Neighborhood Dashboard (NBD) application runs on Anaconda Python 2.7. It will not run on the default Python bundled with your OS or on Python 3. It also requires a couple of other Python packages to run that are not bundled together with Anaconda Python 2.7.
-- To install Anaconda Python 2.7, follow these [instructions](installing-python-and-required-packages.md).
+- The Neighborhood Dashboard (NBD) application runs on Anaconda Python 2.7. It is highly recommended to install Anaconda Python as opposed to using the traditional Python bundled with your Operating System. Anaconda comes bundled with most of the scientific Python packages you might need, has porting for other big data packages implemented in other languages, as well as offering a flexible way of creating Python environments.
+- To install Anaconda Python 2.7 and the extra required packages, follow these [instructions](installing-python-and-required-packages.md).
 # Obtaining API Keys
 - Read the [utilized APIs](APIs.md) documentation and obtain the 2 necessary API keys.  
 # Download the NBD source code from Github
-- Clone the NBD source code from Github by running the command ```git clone git@github.com:DukeMobileTech/neighborhood-dashboard.git``` in your terminal. You can install git (or the latest version) by following these instructions (https://www.atlassian.com/git/tutorials/install-git). Another way of downloading the source code is to click on the **Clone or download** link on this [Github repository](https://github.com/DukeMobileTech/neighborhood-dashboard).
-- Navigate into the neighborhood-dashboard directory which contains several folders in it. Unzip the ```input.zip``` file (It contains 3 test locations). The input folder is where your input files (location.csv, sso.csv, and urbanicity.csv) go. You can swap out the locations.csv file with your own locations file. The locations file contains comma separated values in the format *family_id, latitude, longitude*.
+- Clone the NBD source code from Github by running the command ```git clone git@github.com:DukeMobileTech/neighborhood-dashboard.git``` in your terminal. You can install git (or the latest version) by following these instructions (https://www.atlassian.com/git/tutorials/install-git). Another way of downloading the source code is to click on the **Clone or download** link on this [Github repository](https://github.com/DukeMobileTech/neighborhood-dashboard) and then click on the **Download Zip** button.
+- Navigate into the downloaded neighborhood-dashboard folder. Unzip the ```input.zip``` file (It contains 3 test locations). The input folder is where your input files (location.csv, sso.csv, and urbanicity.csv) go. You can swap out the locations.csv file with your own locations file when doing a download with your own data. The locations file contains comma separated values in the format *family_id, latitude, longitude*.
 # config.cfg
-- This contains the configuration values needed to run the NBD. An example of this file (named config_example) is found in the folder user-interface. The file should look as below:
+- This contains the configuration values needed to run the NBD. An example of this file (named config_example) is found in the sub-folder user-interface. The file should look as below:
 ```
 [files]
 location = ../input/locations.csv
@@ -32,7 +32,9 @@ generate-kml = 1
 - Create your own config.cfg file or rename the config_example.cfg file to config.cfg and then replace the gsv key value with the Google API Key and the walkability API Key value with the key from Walk Score. 
 - To understand the meaning of these configuration values, look at **Part 2** of the PDF manual found in the README section (http://81.7.15.7/~donald/nd/Tutorial_NBDashboard_v5.pdf).
 # Running the NBD
-- Navigate into the NBD folder and run the command ```python create_nd.py ```. This starts the NBD application. You should see logs of the *pre-processing step and the data download steps*. 
+- Navigate into the user-interface sub-folder. If you created an nbd environment when installing the extra packages, ensure you're in that environment.
+![nbd environment](images/nbd.png?raw=true)  
+- Run the command ```python create_nd.py ```. This starts the NBD application. You should see logs of the *pre-processing step and the data download steps*. 
 ![Data Download](images/data-processing.png?raw=true)
 - The time taken by this step is dependent on the number of addresses in the input folder and the number of fake addresses in the config file. If the NBD is launched with 9 fake address look-ups, you can expect to download data of up to 400 real addresses in a 24-hour period. *All the data has to be downloaded before you can view any of it.* 
 - In case the NBD crashes mid-way, you can re-start it and it will load up the data it had downloaded before starting the new download from where it crashed.
