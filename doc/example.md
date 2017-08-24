@@ -30,7 +30,7 @@ walkability = yyyyyyyyyyyyyyyyyyyyyyyyyyyy
 generate-kml = 1
 ```
 - Create your own config.cfg file or rename the config_example.cfg file to config.cfg and then replace the gsv key value with the Google API Key and the walkability API Key value with the key from Walk Score. 
-- To understand the meaning of these configuration values, look at **Part 2** of the PDF manual found in the README section (http://81.7.15.7/~donald/nd/Tutorial_NBDashboard_v5.pdf).
+- To understand the meaning of these configuration values, review this [configuration page](https://github.com/DukeMobileTech/neighborhood-dashboard/wiki/Configuring-the-Neighborhood-Dashboard).
 # Running the NBD
 - Navigate into the user-interface sub-folder. If you created an nbd environment when installing the extra packages, ensure you're in that environment.
 ![nbd environment](images/nbd.png?raw=true)  
@@ -68,9 +68,9 @@ generate-kml = 1
       - *headingCount* (takes the values 0 and 1) and represents the direction the image is taken from. If the segment in question starts at point 0 and ends at point 1, 0 represents the direction from point 0 to point 1 and 1 represents the direction from point 1 to point 0. The direction value represented by 0 and 1 ranges from 0 to 360 degrees (compass direction) and is the value passed to the *heading* parameter in the query sent to the Google StreetView API.
     - Each of these images has a *field of view (fov) of 120 degrees* and a *pitch of 5*.
     - You can read more about Google Street View [heading, fov, and pitch](https://developers.google.com/maps/documentation/streetview/intro).
-  - The PNG images ending with *detection.png* have a similar naming format with the JPEG images from GSV API. These images are the result of passing the GSV JPEG images through a couple of functions of the [OpenCV](http://docs.opencv.org/3.2.0/index.html) library. The GSV images are read by the opencv library, converted from BGR to GRAY color space, resized using different factors, and finally saved back in PNG format. This processing helps in determining the different features in the image i.e. potentially identify any street signs in the image and such. **These are the images displayed in the Street View Images section of the Dashboard**
+  - The PNG images ending with *detection.png* have a similar naming format with the JPEG images from GSV API. These images are the result of passing the GSV JPEG images through a couple of functions of the [OpenCV](http://docs.opencv.org/3.2.0/index.html) library. The GSV images are read by the opencv library, converted from BGR to GRAY color space, resized using different factors, and finally saved back in PNG format. This processing helps in determining the different features in the image i.e. potentially identify any street signs in the image and such. **These are the images displayed in the Street View Images section of the Dashboard**.
   - The JPEG images with names ending with *number_ss.jpg* are the images of the detected street signs from passing the GSV JPEG image through the opencv library. The detected street sign images have the same naming format as the GSV images with the exception of the ending. The *digit* in the name indicates the count of the feature i.e if two features were detected, the first takes the digit 0 while the second takes the digit 1.
-- *Review Part 5 of the PDF manual found in the README to further understand what is being displayed in the dashboard*
+- *This page ([Viewing the NBD results](https://github.com/DukeMobileTech/neighborhood-dashboard/wiki/Viewing-the-NBD-Results)) explains in detail what each part of the dashboard displays*.
 - Within the output folder, there is a **```csv```** folder that contains raw data files whose data is fed to the dashboard. This is probably the data that is of interest to researchers. The files are ```closest_poi_data.csv```, ```police_crime_data.csv```, ```police_stop_and_search_data.csv```, ```urbanicity_data.csv```, and ```walkability_data.csv```.
  
  
