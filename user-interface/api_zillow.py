@@ -1,8 +1,17 @@
 import api_geocode
 import requests
 import xml.etree.ElementTree as ET
-
+import sys
+import getopt
+import ConfigParser
+import datetime
+import os
+import json
+import osmroad
+from distutils.dir_util import copy_tree
 from common import *
+import familydata
+
 
 ZILLOW_DEEP_SEARCH_BASE_URL = 'http://www.zillow.com/webservice/GetDeepSearchResults.htm'
 locations = []
@@ -15,19 +24,6 @@ def getLocationAddress(lat, lon, key):
 
 
 def getLocationZestimate(location, api_key):
-    # Address from Nominatim
-    # address_components = address.split(',')
-    # zip_code = address_components[len(address_components) - 2].strip()
-    # street = address
-    # if address_components[0].strip().isdigit():
-    #     print '0 isdigit'
-    #     street = address_components[0].strip() + ' ' + address_components[1].strip()
-    # elif address_components[1].strip().isdigit():
-    #     print '1 isdigit'
-    #     street = address_components[1].strip() + ' ' + address_components[2].strip()
-    # print 'street is ' + street
-
-    # Address from GoogleV3
     if location is None:
         return
     print location.address
@@ -129,3 +125,110 @@ def getZestimate(family_id, lat, lon, zillow_key, gsv_key):
     address = getLocationAddress(lat, lon, gsv_key)
     result = getLocationZestimate(address, zillow_key)
     return parseZestimates(result, family_id, address, lat, lon)
+
+
+class Zestimator:
+    def __init__(self, config_file):
+        print '__init__'
+        self.config = ConfigParser.RawConfigParser(allow_no_value=True)
+        self.config.read(config_file)
+        self.gsv_api_key = self.get_secure_config('api-keys', 'gsv', DEFAULT_GSV_KEY)
+        self.zillow_key = self.get_secure_config('api-keys', 'zillow', None)
+        self.perform_zestimate = self.zillow_key is not None and not (self.zillow_key == 'None')
+
+
+    def get_secure_config(self, section, option, default):
+        if not self.config.has_option(section, option):
+            return default
+        return self.config.get(section, option)
+
+
+    def create_directories(self):
+        from_directory = HTML_SOURCE_FOLDER
+        self.output_directory = self.get_secure_config('settings', 'output-directory', DEFAULT_OUTPUT_FOLDER)
+        copy_tree(from_directory, self.output_directory)
+        self.csvfolder = os.path.join(self.output_directory, CSV_PATH)
+
+
+    def load_input_files(self):
+        # Location file loading
+        if not self.config.has_option('files', 'location'):
+            raise Exception('Location file not configured. Check your config file!')
+        location_file = self.config.get('files', 'location')
+        if not os.path.isfile(location_file):
+            raise Exception('Location file not found. Check if the file exists and check your config file!')
+        self.location_data = familydata.readCoordinates(location_file)
+
+    def zestimateWithFake(self, family, lat, lon, random_locations):
+        random.seed()
+        family_done = False
+        active = True
+        while active:
+            rnd = random.randint(0, self.fake_count)
+            if rnd > 0 and len(random_locations) > 0:
+                fake_location = random_locations.pop(random.randint(0, len(random_locations) - 1))
+                print 'Fake request %s' % (fake_location)
+                getLocationZestimate(getLocationAddress(lat, lon, self.gsv_api_key), self.zillow_key)
+            elif not family_done:
+                print 'Real request %s, %s' % (lat, lon)
+                zestimate_data = getZestimate(family, lat, lon, self.zillow_key, self.gsv_api_key)
+                writeZestimateDictionaryToCsv(zestimate_data, self.csvfolder, 'zestimate_data.csv')
+                family_done = True
+            if family_done and len(random_locations) == 0:
+                active = False
+
+
+    def process(self):
+        print 'Process Launched'
+        if self.perform_zestimate:
+            print 'Processing zestimates'
+            self.create_directories()
+            self.load_input_files()
+            writeZestimateHeadersToCsv(self.csvfolder, 'zestimate_data.csv')
+            self.fake_count = 0
+            if self.get_secure_config('settings', 'fake-requests', DEFAULT_FAKE_REQUESTS) == '1':
+                self.fake_count = int(self.get_secure_config('settings', 'fake-requests-count', DEFAULT_FAKE_REQUESTS_COUNT))
+            counter = 0
+            for family in self.location_data:
+                counter += 1
+                printHeadline(
+                    '%s Processing family %s %s/%s' % (datetime.datetime.now(), family, counter, len(self.location_data)))
+                if not 'latitude' in self.location_data[family] or not 'longitude' in self.location_data[family] or not \
+                        self.location_data[family]['latitude'] or not self.location_data[family]['longitude']:
+                    print 'Family %s does not have a location' % (family)
+                    continue
+                try:
+                    lat = float(self.location_data[family]['latitude'])
+                    lon = float(self.location_data[family]['longitude'])
+                except:
+                    print 'Could not convert coordinates to float for family %s' % (family)
+                    continue
+
+                if self.fake_count == 0:
+                    print 'No fake requests'
+                    zestimate_data = getZestimate(family, lat, lon, self.zillow_key, self.gsv_api_key)
+                    writeZestimateDictionaryToCsv(zestimate_data, self.csvfolder, 'zestimate_data.csv')
+                else:
+                    print 'Include fake requests'
+                    random_locations = getRandomLocations(lat, lon, self.fake_count)
+                    print random_locations
+                    self.zestimateWithFake(family, lat, lon, random_locations)
+        else:
+            print 'Zestimates not performed'
+
+
+if __name__ == "__main__":
+    config_file = 'config.cfg'
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],"hc:",["cfile="])
+        for opt, arg in opts:
+            if opt == '-h':
+                print '-h'
+                sys.exit(0)
+            elif opt in ("-c", "--cfile"):
+                config_file = arg
+    except getopt.GetoptError:
+        print 'Error: '
+        sys.exit(2)
+    zillow = Zestimator(config_file)
+    zillow.process()
