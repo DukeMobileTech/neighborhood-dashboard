@@ -19,7 +19,7 @@ import urbanicitydata
 
 import api_geocode
 import api_walkability
-
+import api_zillow
 
 def writeObject(varname, data, folder, filename, callback=''):
     if not os.path.exists(folder):
@@ -72,6 +72,9 @@ class NeighborhoodDashboard:
 
         self.walkability_key = self.get_secure_config('api-keys', 'walkability', None)
         self.perform_walkability = self.walkability_key is not None and not (self.walkability_key == 'None')
+        self.gsv_api_key = self.get_secure_config('api-keys', 'gsv', DEFAULT_GSV_KEY)
+        self.zillow_key = self.get_secure_config('api-keys', 'zillow', None)
+        self.perform_zestimate = self.zillow_key is not None and not (self.zillow_key == 'None')
 
         self.generic_data = {}
         self.location_data = {}
@@ -163,6 +166,7 @@ class NeighborhoodDashboard:
         policedata.writePoliceHeadersToCsv(self.csvfolder, 'police_crime_data.csv', 'police_stop_and_search_data.csv')
         osmroad.writeClosestPoiHeadersToCsv(self.csvfolder, 'closest_poi_data.csv')
         api_walkability.writeWalkabilityHeadersToCsv(self.csvfolder, 'walkability_data.csv')
+        api_zillow.writeZestimateHeadersToCsv(self.csvfolder, 'zestimate_data.csv')
 
         urbanicity_fieldnames = []
         if process_urbanicity:
@@ -175,8 +179,7 @@ class NeighborhoodDashboard:
         streetview_detection = self.get_secure_config('settings', 'streetview-detection', DEFAULT_STREETVIEW_DETECTION)
         road_points = self.get_secure_config('debug', 'generate-kml', DEFAULT_ROAD_POINTS)
 
-        gsv_api_key = self.get_secure_config('api-keys', 'gsv', DEFAULT_GSV_KEY)
-        if gsv_api_key is None:
+        if self.gsv_api_key is None or self.gsv_api_key == 'None' :
             streetview_detection = 0
 
         counter = 0
@@ -197,29 +200,29 @@ class NeighborhoodDashboard:
             random_locations = getRandomLocations(lat, lon, fake_count)
 
             road_data = osmroad.retrieveFamilyRoads(family, lat, lon, list(random_locations), self.osm_output_folder)
-            osmroad.writeClosestPoiToCsv(family, lat, lon, road_data['closest_pois'], self.csvfolder,
-                                         'closest_poi_data.csv')
+            osmroad.writeClosestPoiToCsv(family, lat, lon, road_data['closest_pois'], self.csvfolder, 'closest_poi_data.csv')
             if process_urbanicity:
                 family_urbanicity_data = {}
                 if family in self.urbanicity_data:
                     family_urbanicity_data = self.urbanicity_data[family]
-                urbanicitydata.writeUrbanicityRowToCsv(family, family_urbanicity_data, road_data['closest_pois'],
-                                                       self.csvfolder, 'urbanicity_data.csv', urbanicity_fieldnames)
+                urbanicitydata.writeUrbanicityRowToCsv(family, family_urbanicity_data, road_data['closest_pois'], self.csvfolder, 'urbanicity_data.csv', urbanicity_fieldnames)
 
             policefolder = os.path.join(self.data_output_folder, POLICE_PATH)
             policefile = os.path.join(policefolder, 'police-data-' + str(family) + '.js')
 
             police_data = {}
             # TODO: Uncomment for UK locations / Comment out for US locations
-            if os.path.isfile(policefile):
-                print 'Skipping police data for %s' % family
-            else:
-                police_data = policedata.requestFamilyPoliceData(family, lat, lon, self.year_setting, list(random_locations),
-                road_data['roads']['points'])
-                flat_police_crime_data = policedata.flattenPoliceDictionaryCrimes(family, police_data)
-                flat_police_stop_and_search_data = policedata.flattenPoliceDictionaryStopAndSearches(family, police_data)
-                policedata.writePoliceDictionaryToCsv(flat_police_crime_data, flat_police_stop_and_search_data,
-                self.csvfolder, 'police_crime_data.csv', 'police_stop_and_search_data.csv')
+            # if os.path.isfile(policefile):
+            #     print 'Skipping police data for %s' % family
+            # else:
+            #     # if self.year_setting < 2014:
+            #     #     # Process crime summary data
+            #     # else:
+            #     police_data = policedata.requestFamilyPoliceData(family, lat, lon, self.year_setting, list(random_locations), road_data['roads']['points'])
+            #     flat_police_crime_data = policedata.flattenPoliceDictionaryCrimes(family, police_data)
+            #     flat_police_stop_and_search_data = policedata.flattenPoliceDictionaryStopAndSearches(family, police_data)
+            #     policedata.writePoliceDictionaryToCsv(flat_police_crime_data, flat_police_stop_and_search_data,
+            #     self.csvfolder, 'police_crime_data.csv', 'police_stop_and_search_data.csv')
 
             roadfolder = os.path.join(self.data_output_folder, ROAD_PATH)
             roadfile = os.path.join(roadfolder, 'road-data-' + str(family) + '.js')
@@ -240,8 +243,7 @@ class NeighborhoodDashboard:
                 # Py2Exe disable
                 #''''
                 if streetview_detection == '1':
-                    detection_data = streetsign_detection.determineStreetSigns(family, family_point_data,
-                                                                                    self.streetview_output_folder, gsv_api_key)
+                    detection_data = streetsign_detection.determineStreetSigns(family, family_point_data, self.streetview_output_folder, self.gsv_api_key)
                 #'''''
                 # Py2Exe disable end
 
@@ -252,6 +254,9 @@ class NeighborhoodDashboard:
 
             self.generic_data[family] = self.process_generic_data(family, lat, lon)
             api_walkability.writeWalkabilityDictionaryToCsv(self.generic_data[family], self.csvfolder, 'walkability_data.csv')
+            if self.perform_zestimate:
+                zestimate_data = api_zillow.getZestimate(family, lat, lon, self.zillow_key, self.gsv_api_key)
+                api_zillow.writeZestimateDictionaryToCsv(zestimate_data, self.csvfolder, 'zestimate_data.csv')
 
         print self.generic_data
         writeGenericFile(self.generic_data, self.data_output_folder)

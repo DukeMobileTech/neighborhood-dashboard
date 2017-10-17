@@ -89,7 +89,6 @@ def writeWalkabilityHeadersToCsv(csvfolder, filename):
         os.makedirs(csvfolder)
     initCSV(os.path.join(csvfolder, filename), CSV_WALKABILITY_FIELDNAMES)
 
-
 def writeWalkabilityDictionaryToCsv(data, csvfolder, filename):
     if not os.path.exists(csvfolder):
         os.makedirs(csvfolder)

@@ -69,30 +69,21 @@ US_ZONES = [
 MULTIPLIER = 1000000
 FAKE_REQUESTS_COUNT = 9
 
-CSV_CRIME_FIELDNAMES = ['family_id', 'data_type',
-                  'category', 'persistent_id', 'month',
-                  'location_latitude', 'location_longitude', 'location_street_id', 'location_street_name',
-                  'context', 'id', 'location_type', 'location_subtype',
-                  'outcome_status_category', 'outcome_status_date', 'on_family_road'
-                  ]
+CSV_CRIME_FIELDNAMES = ['family_id', 'data_type', 'category', 'persistent_id', 'month', 'location_latitude', 'location_longitude', 'location_street_id', 'location_street_name', 'context', 'id', 'location_type', 'location_subtype', 'outcome_status_category', 'outcome_status_date', 'on_family_road']
 
 CSV_STOPANDSEARCH_FIELDNAMES = [ 'family_id', 'data_type',
-    'type', 'involved_person', 'datetime', 'operation', 'operation_name',
-    'location_latitude', 'location_longitude', 'location_street_id', 'location_street_name',
-    'gender', 'age_range', 'self_defined_ethnicity', 'officer_defined_ethnicity', 'legislation', 'object_of_search',
-    'outcome', 'outcome_linked_to_object_of_search', 'removal_of_more_than_outer_clothing', 'on_family_road'
+    'type', 'involved_person', 'datetime', 'operation', 'operation_name', 'location_latitude', 'location_longitude', 'location_street_id', 'location_street_name', 'gender', 'age_range', 'self_defined_ethnicity', 'officer_defined_ethnicity', 'legislation', 'object_of_search', 'outcome', 'outcome_linked_to_object_of_search', 'removal_of_more_than_outer_clothing', 'on_family_road'
 ]
 
-CSV_CLOSEST_POI_FIELDNAMES = [ 'family_id', 'latitude', 'longitude', 'poi_classification',
-                               'poi_category', 'count', 'distance', 'average_distance', 'points', 'tags']
-
+CSV_CLOSEST_POI_FIELDNAMES = [ 'family_id', 'latitude', 'longitude', 'poi_classification', 'poi_category', 'count', 'distance', 'average_distance', 'points', 'tags']
 
 CSV_URBANICITY_VARIABLES = ['park', 'pitch', 'playground', 'dog_park', 'garden', 'golf_course', 'recreation_ground', 'village_green', 'forest', 'farmland', 'grass', 'meadow']
 
 CSV_URBANICITY_POI_FIELDNAMES = ['familyid', 'density', 'PerGreen', 'numGreen', 'SCIIurban3', 'PopDensity']
 
-
 CSV_WALKABILITY_FIELDNAMES = ['family_id', 'latitude', 'longitude', 'ws_walkscore', 'ws_link', 'ws_description', 'ts_transitscore']
+
+CSV_ZILLOW_FIELDNAMES = ['family_id', 'latitude', 'longitude', 'reverse_geocode_address', 'zpid', 'zestimate_amount', 'zestimate_amount_low', 'zestimate_amount_high', 'zestimate_date', 'rentzestimate_amount', 'rentzestimate_date', 'rentzestimate_amount_low', 'rentzestimate_amount_high', 'neighbourhood', 'use_code', 'tax_assessment_year', 'tax_assessment', 'year_built', 'lot_size', 'finished_size', 'bathrooms', 'bedrooms', 'total_rooms', 'last_sold_date', 'last_sold_price', 'zillow_address', 'zillow_latitude', 'zillow_longitude']
 
 # OSM_POI_CATEGORIES = {
 #     "Leisure" : ["park", "pitch ", "playground ", "sports_centre", "swimming_pool", "swimming_area", "water_park", "track", "bandstand", "dog_park", "garden", "golf_course"],

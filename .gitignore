@@ -5,3 +5,4 @@ output/*
 user-interface/config.cfg
 .idea
 *.DS_Store
+neighbourhood/*
